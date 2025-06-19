@@ -1,16 +1,18 @@
+# main.py
+
 from electronique import initialiser_gpio, nettoyer_gpio, personne_detectee, allumer_led, eteindre_led
 from informatique import lancer_message_introduction, changer_page
 from flask import Flask, request, jsonify
 import threading
 import time
 import os
-import subprocess
-import json
+import requests
 
 app = Flask(__name__)
 
 # --- INITIALISATION GPIO ---
 initialiser_gpio()
+print("[MAIN] ✅ GPIO initialisés.")
 
 # --- THREAD : Détection de présence ---
 def detection_loop():
@@ -19,15 +21,10 @@ def detection_loop():
         if personne_detectee():
             print("[MAIN] ✅ Présence détectée !")
             allumer_led()
-            time.sleep(3)  # temporisation volontaire
+            time.sleep(3)
 
-            # Message vocal d’intro
             lancer_message_introduction()
-
-            # Passage à la page 2
             changer_page("interaction")
-
-            # On sort du loop de détection après la première détection
             break
         else:
             eteindre_led()
@@ -48,36 +45,28 @@ def ask_question():
 
 def traiter_question_rasa_et_vocaliser(question):
     try:
-        # Appel à Rasa local
-        response = subprocess.run(
-            ["curl", "-X", "POST", "http://localhost:5005/webhooks/rest/webhook",
-             "-H", "Content-Type: application/json",
-             "-d", f'{{"sender": "user", "message": "{question}"}}'],
-            capture_output=True, text=True
+        response = requests.post(
+            "https://referentiel-rasa.onrender.com/webhooks/rest/webhook",
+            json={"sender": "user", "message": question},
+            timeout=10
         )
+        response.raise_for_status()
+        messages = response.json()
 
-        if response.returncode != 0:
-            print("[RASA] ❌ Erreur appel Rasa :", response.stderr)
-            return
-
-        messages = json.loads(response.stdout)
-        if not messages or "text" not in messages[0]:
-            print("[RASA] ⚠️ Réponse vide ou mal formatée.")
+        if not isinstance(messages, list) or not messages or "text" not in messages[0]:
+            print("[RASA] ⚠️ Réponse vide ou mal formatée :", messages)
             return
 
         texte_reponse = messages[0]["text"]
         print(f"[RASA] 🧠 Réponse : {texte_reponse}")
 
-        # Lecture vocale
         os.system(f'espeak -v fr "{texte_reponse}"')
-
-        # Passage à la page 3
         changer_page("aboya")
 
     except Exception as e:
         print(f"[ERROR] ❌ Exception dans le traitement Rasa : {e}")
 
-# --- Lancement de Flask + thread capteur ---
+# --- Lancement Flask + Thread capteur ---
 if __name__ == "__main__":
     try:
         threading.Thread(target=detection_loop).start()
@@ -85,3 +74,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         nettoyer_gpio()
         print("[MAIN] 🔌 Arrêt manuel.")
+    finally:
+        nettoyer_gpio()

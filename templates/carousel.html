@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cadre décoratif enrichi</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #fefaf6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          #F77F00,
+          #F77F00 4px,
+          transparent 4px,
+          transparent 12px
+        ),
+        repeating-linear-gradient(
+          -45deg,
+          #F77F00,
+          #F77F00 4px,
+          transparent 4px,
+          transparent 12px
+        );
+      background-size: 40px 40px;
+      background-position: center;
+    }
+
+    .cadre {
+      position: relative;
+      width: 90%;
+      height: 90%;
+      background: #fff;
+      box-shadow: 0 0 0 20px #fff;
+      border-radius: 12px;
+    }
+
+    .motif-top, .motif-bottom {
+      position: absolute;
+      width: 100%;
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      left: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .motif-top {
+      top: -1em;
+    }
+
+    .motif-bottom {
+      bottom: -1em;
+      transform: rotate(180deg);
+    }
+
+    .motif-left, .motif-right {
+      position: absolute;
+      height: 100%;
+      width: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      top: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .motif-left {
+      left: -1em;
+    }
+
+    .motif-right {
+      right: -1em;
+      transform: rotate(180deg);
+    }
+
+    /* Marges pour aligner les motifs extrêmes avec les coins */
+    .motif-top > :first-child,
+    .motif-bottom > :first-child {
+      margin-left: 24px;
+    }
+    .motif-top > :last-child,
+    .motif-bottom > :last-child {
+      margin-right: 24px;
+    }
+
+    .motif-left > :first-child,
+    .motif-right > :first-child {
+      margin-top: 24px;
+    }
+    .motif-left > :last-child,
+    .motif-right > :last-child {
+      margin-bottom: 24px;
+    }
+
+    /* Formes géométriques 3D et alternance de couleurs */
+    .triangle-up, .triangle-down, .circle, .square {
+      filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
+      transition: transform 0.3s ease;
+      cursor: default;
+    }
+    /* effet 3D au survol (optionnel) */
+    .triangle-up:hover, .triangle-down:hover, .circle:hover, .square:hover {
+      transform: translateY(-3px) scale(1.1);
+      filter: drop-shadow(3px 3px 3px rgba(0,0,0,0.4));
+    }
+
+    /* Couleurs alternées par forme et index (pair/impair) */
+
+    /* Triangle up */
+    .motif-top .triangle-up:nth-child(4n+1),
+    .motif-bottom .triangle-up:nth-child(4n+1),
+    .motif-left .triangle-up:nth-child(4n+1),
+    .motif-right .triangle-up:nth-child(4n+1) {
+      border-bottom-color: #f77f00; /* orange vif */
+      filter: drop-shadow(1px 1px 2px #c75c00);
+    }
+    .motif-top .triangle-up:nth-child(4n+5),
+    .motif-bottom .triangle-up:nth-child(4n+5),
+    .motif-left .triangle-up:nth-child(4n+5),
+    .motif-right .triangle-up:nth-child(4n+5) {
+      border-bottom-color: #ffcc00; /* jaune */
+      filter: drop-shadow(1px 1px 2px #cc9a00);
+    }
+
+    /* Triangle down */
+    .motif-top .triangle-down:nth-child(4n+3),
+    .motif-bottom .triangle-down:nth-child(4n+3),
+    .motif-left .triangle-down:nth-child(4n+3),
+    .motif-right .triangle-down:nth-child(4n+3) {
+      border-top-color: #f77f00;
+      filter: drop-shadow(1px 1px 2px #c75c00);
+    }
+    .motif-top .triangle-down:nth-child(8n+7),
+    .motif-bottom .triangle-down:nth-child(8n+7),
+    .motif-left .triangle-down:nth-child(8n+7),
+    .motif-right .triangle-down:nth-child(8n+7) {
+      border-top-color: #ffcc00;
+      filter: drop-shadow(1px 1px 2px #cc9a00);
+    }
+
+    /* Cercle */
+    .motif-top .circle:nth-child(4n+2),
+    .motif-bottom .circle:nth-child(4n+2),
+    .motif-left .circle:nth-child(4n+2),
+    .motif-right .circle:nth-child(4n+2) {
+      background: linear-gradient(145deg, #f77f00, #c75c00);
+      box-shadow: 1px 1px 5px #c75c00 inset;
+    }
+    .motif-top .circle:nth-child(8n+6),
+    .motif-bottom .circle:nth-child(8n+6),
+    .motif-left .circle:nth-child(8n+6),
+    .motif-right .circle:nth-child(8n+6) {
+      background: linear-gradient(145deg, #ffcc00, #cc9a00);
+      box-shadow: 1px 1px 5px #cc9a00 inset;
+    }
+
+    /* Carré */
+    .motif-top .square:nth-child(4n),
+    .motif-bottom .square:nth-child(4n),
+    .motif-left .square:nth-child(4n),
+    .motif-right .square:nth-child(4n) {
+      background: linear-gradient(145deg, #f77f00, #c75c00);
+      box-shadow: 2px 2px 6px #c75c00 inset;
+    }
+    .motif-top .square:nth-child(8n+4),
+    .motif-bottom .square:nth-child(8n+4),
+    .motif-left .square:nth-child(8n+4),
+    .motif-right .square:nth-child(8n+4) {
+      background: linear-gradient(145deg, #ffcc00, #cc9a00);
+      box-shadow: 2px 2px 6px #cc9a00 inset;
+    }
+
+    /* Triangle up */
+    .triangle-up {
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 16px solid #b34800; /* default, overridden */
+      transform: scaleX(1.4);
+      border-radius: 1px;
+    }
+
+    /* Triangle down */
+    .triangle-down {
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 16px solid #b34800; /* default, overridden */
+      transform: scaleX(1.4);
+      border-radius: 1px;
+    }
+
+    /* Cercle */
+    .circle {
+      width: 16px;
+      height: 16px;
+      background-color: #b34800;
+      border-radius: 50%;
+    }
+
+    /* Carré */
+    .square {
+      width: 16px;
+      height: 16px;
+      background-color: #b34800;
+      border-radius: 2px;
+    }
+
+    /* Motif coin décoratif */
+    .corner {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .corner::before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-color: #b34800;
+      transform: rotate(45deg);
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .corner .inner-circle {
+      width: 8px;
+      height: 8px;
+      background-color: #fff;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .corner.top-left {
+      top: 4px;
+      left: 4px;
+    }
+
+    .corner.top-right {
+      top: 4px;
+      right: 4px;
+    }
+
+    .corner.bottom-left {
+      bottom: 4px;
+      left: 4px;
+    }
+
+    .corner.bottom-right {
+      bottom: 4px;
+      right: 4px;
+    }
+
+    /* Fond avec motifs géométriques */
+    .background-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(45deg, #f2f2f2 0px, #f2f2f2 10px, #b34800 10px, #b34800 20px);
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <div class="cadre">
+    <div class="background-pattern"></div>
+
+    <!-- Haut : 12 motifs -->
+    <div class="motif-top">
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+    </div>
+
+    <!-- Bas : 12 motifs -->
+    <div class="motif-bottom">
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+    </div>
+
+    <!-- Gauche : 12 motifs -->
+    <div class="motif-left">
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+    </div>
+
+    <!-- Droite : 12 motifs -->
+    <div class="motif-right">
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+      <div class="triangle-up"></div>
+      <div class="circle"></div>
+      <div class="triangle-down"></div>
+      <div class="square"></div>
+    </div>
+
+  </div>
+</body>
+</html>

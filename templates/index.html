@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
+
+
+  <title>N'Botumbo Interface</title>
+  <style>
+    /* RESET & BASE */
+    * { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background-color: #fefaf6;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image:
+    repeating-linear-gradient(45deg, #4b2e15, #4b2e15 4px, transparent 4px, transparent 12px),
+    repeating-linear-gradient(-45deg, #4b2e15, #4b2e15 4px, transparent 4px, transparent 12px);
+  background-size: 40px 40px;
+  background-position: center;
+}
+
+.cadre {
+  position: relative;
+  width: 93%;
+  height: 85vh; /* au lieu de 90% */
+  max-height: 95vh; /* éviter tout débordement */
+  background: #f8f5f0;
+  box-shadow: 0 0 0 20px  #f8f5f0;
+  border-radius: 2px;
+  overflow: hidden; /* pour éviter les débordements internes */
+}
+
+  #glb-viewer {
+  width: 100%;
+  height: 100%; /* évite 100vh qui est parfois trop long */
+}
+
+
+    /* GESTION DES PAGES : positionnement & visibilité */
+    .page {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+
+    /* Page visible */
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* --- PAGE 1 : ÉCRAN DE REPOS AVEC CUBE & TEXTE ANIMÉ --- */
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      background-color:white;
+      width: 100%;
+      height: 99%;
+      padding: 40px;
+      text-align: center;
+    }
+
+    #typewriter {
+      font-size: 8em;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 3px;
+    
+      color: #F77F00;
+      
+      
+    }
+
+    
+
+    /* --- PAGE 2 : INTERACTION --- */
+    header {
+      width: 100%;
+      display: flex;
+      
+      justify-content: space-between;
+      align-items: flex-start;
+      max-width: 1000px;
+      margin: 40px auto auto 0em;
+      
+      gap: 40px;
+      padding: 0 20px;
+    }
+
+    /* Images animées à gauche et droite */
+    .img-left, .img-right {
+      width: 2%;
+      height: 2%;
+      margin-top:-1;
+      
+    }
+   .img-right{
+    margin-right:2em;
+   }
+    /* Texte animé au centre */
+    #animated-text {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1.1px;
+      font-weight: bold;
+      margin-top: 1.5em;
+      color: #F77F00;
+      font-size: 1.6rem;
+      text-align: center;
+      word-wrap: break-word;
+      flex-grow: 1;
+    }
+
+    /* Zone de saisie */
+    textarea {
+      width: 90%;
+      max-width: 800px;
+      min-height: 200px;
+      margin: 3em auto 1em 4.8em;
+      font-size: 1.1rem;
+      padding: 10px;
+      border: 2px solid #4b2e15;
+      border-radius: 6px;
+      resize: vertical;
+      font-family: Arial, sans-serif;
+      color: #F77F00;
+      display: block;
+      box-sizing: border-box;
+    }
+
+    /* Bouton Envoyer */
+    #send-button {
+      display: block;
+      margin: 2em auto 50px 18em;
+      font-weight: bold;
+      padding: 10px 20px;
+      font-size: 1.3rem;
+      width: 10em;
+      background-color: #F77F00;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #send-button:hover {
+      background-color: #cc6500;
+
+    }
+
+    #cadre_medias_masques {
+      width: 100%;
+      height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      overflow: hidden;
+    }
+
+  #cadre_medias_danse {
+    display: none;              /* caché par défaut */
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    display: flex;              /* affichage flex pour centrer */
+    justify-content: center;
+    align-items: center;
+
+    background-color: #f8f5f0;  /* optionnel : fond neutre */
+  }
+
+  #cadre_medias_danse video {
+    max-width: 100%;
+    max-height: 88vh;
+    object-fit: contain;
+    border-radius: 10px;
+    display: block;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2); /* optionnel pour style */
+  }
+
+
+
+    .carousel-fade {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .carousel-fade img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 80vh;
+      width: auto;
+      object-fit: contain;
+      object-position: center center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .carousel-fade img.active {
+      opacity: 1;
+      z-index: 1;
+    }
+     
+
+  #texte-parle {
+    font-size: 3rem;
+    text-shadow: 0 0 10px #4b2e15, 0 0 20px #4b2e15;
+    letter-spacing: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight:bold;
+    border-right: 0.15em solid #4b2e15;
+    box-sizing: border-box;
+    animation: glowPulse 1.5s infinite alternate;
+  }
+
+  @keyframes glowPulse {
+    0% {
+      text-shadow: 0 0 10px #F77F00, 0 0 20px #F77F00;
+      transform: scale(1);
+    }
+    50% {
+      text-shadow: 0 0 20px #F77F00, 0 0 40px #F77F00;
+      transform: scale(1.05);
+    }
+    100% {
+      text-shadow: 0 0 10px #F77F00, 0 0 20px #F77F00;
+      transform: scale(1);
+    }
+  }
+    /* -------- TABLETTE DEBOUT -------- */
+@media screen and (max-width: 768px) {
+  #typewriter {
+    font-size: 2em;
+    font-weight:bold;
+    color:#F77F00;
+  }
+
+  
+   .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      background-color:white;
+      width: 100%;
+      height: 100%;
+      padding: 40px;
+      text-align: center;
+    }
+
+  #page-interaction{
+    background-color: white;
+  }
+
+  
+  body {
+  margin: 0;
+  background-color: #fefaf6;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image:
+    repeating-linear-gradient(45deg, #4b2e15, #4b2e15 4px, transparent 4px, transparent 12px),
+    repeating-linear-gradient(-45deg, #4b2e15, #4b2e15 4px, transparent 4px, transparent 12px);
+  background-size: 40px 40px;
+  background-position: center;
+}
+
+.cadre {
+  position: relative;
+  width: 88%;
+  height: 85vh; /* au lieu de 90% */
+  max-height: 95vh; /* éviter tout débordement */
+  background: #fefaf6;
+  box-shadow: 0 0 0 20px #4b2e15;
+  border-radius: 1px;
+  margin-top:-4em;
+  overflow: hidden; /* pour éviter les débordements internes */
+}
+
+  #glb-viewer {
+  width: 100%;
+  height: 100%; /* évite 100vh qui est parfois trop long */
+}
+  #page-aboya .container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* ← centre verticalement */
+  align-items: center;     /* ← centre horizontalement */
+  height: 100vh;           /* ← prend toute la hauteur de la page */
+  padding: 0;
+}
+   #texte-parle {
+    font-size: 2rem;
+    text-shadow: 0 0 10px #4b2e15, 0 0 20px #4b2e15;
+    letter-spacing: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight:bold;
+    margin-top:-3.5em;
+    border-right: 0.15em solid #4b2e15;
+    box-sizing: border-box;
+    animation: glowPulse 1.5s infinite alternate;
+  }
+
+  @keyframes glowPulse {
+    0% {
+      text-shadow: 0 0 10px #F77F00, 0 0 20px #F77F00;
+      transform: scale(1);
+    }
+    50% {
+      text-shadow: 0 0 20px #F77F00, 0 0 40px #F77F00;
+      transform: scale(1.05);
+    }
+    100% {
+      text-shadow: 0 0 10px #F77F00, 0 0 20px #F77F00;
+      transform: scale(1);
+    }
+  }
+
+  
+  header {
+    display: flex;
+    margin-top:2em;
+    align-items: center;
+    text-align: center;
+    gap: 24.5em;
+  }
+
+  .img-left,.img-right {
+    width: 20%;
+    height: 20%;
+    margin: 0;
+  }
+
+  .img-left{
+    margin-left:-3em;
+  }
+
+  /* Texte animé au centre */
+    #animated-text {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1.1px;
+      font-weight: bold;
+      width:90%;
+      margin-top: 1.5em;
+      margin-left:1.3em;
+      color: #F77F00;
+      font-size: 1.3rem;
+      padding:1em;
+      text-align: center;
+      word-wrap: break-word;
+      flex-grow: 1;
+    }
+  textarea {
+    min-height: 280px;
+    width: 97%;
+    margin: 2em auto 1em auto;
+  }
+
+  #send-button {
+    margin: 1em auto 3em auto;
+    width: 27%;
+    max-width: 170px;
+    margin-left: 19.5em;
+    margin-top: 4.7em;
+    font-size: 1.2rem;
+  }
+
+  .carousel-fade {
+    height: auto;
+    aspect-ratio: 4 / 3;
+    margin-top:-13em;
+    height:50%;
+  }
+
+  #cadre_medias_masques {
+      width: 100%;
+      height: 110vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .carousel-fade img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 50vh;
+      width: auto;
+      object-fit: contain;
+      object-position: center center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+}
+/* --- Responsive spécifique écran 8.7" portrait (typique ~ 1200x1920) --- */
+@media screen and (min-width: 800px) and (max-width: 1300px) and (orientation: portrait) {
+  .container {
+    padding: 30px 20px 50px 20px;
+  }
+  /* Texte animé au centre */
+    #animated-text {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1.1px;
+      font-weight: bold;
+      margin-top: 1.5em;
+      color: #F77F00;
+      font-size: 0.6rem;
+      text-align: center;
+      word-wrap: break-word;
+      flex-grow: 1;
+    }
+  
+  #animated-text {
+    font-size: 1.3rem;
+    margin-top: 1em;
+    padding: 0 1rem;
+  }
+  #typewriter {
+      font-size: 3em;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 3px;
+    
+      color: #4b2e15;
+      margin-top: 2em;
+      
+    }
+   
+    
+
+    
+
+    
+    
+
+    
+  
+}
+
+/* --- TABLETTE RETOURNE --- */
+@media screen and (min-width: 800px) and (max-width: 2000px) and (orientation: landscape) {
+  
+  .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      background-color:white;
+      width: 100%;
+      height: 100%;
+      padding: 40px;
+      text-align: center;
+    }
+
+  
+  body {
+  margin: 0;
+  background-color: #fefaf6;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image:
+    repeating-linear-gradient(45deg, #4b2e15, #4b2e15 4px, transparent 4px, transparent 12px),
+    repeating-linear-gradient(-45deg, #4b2e15, #4b2e15 4px, transparent 4px, transparent 12px);
+  background-size: 40px 40px;
+  background-position: center;
+}
+
+.cadre {
+  position: relative;
+  width: 93%;
+  height: 75vh; /* au lieu de 90% */
+  max-height: 95vh; /* éviter tout débordement */
+  background: #f8f5f0;
+  box-shadow: 0 0 0 20px #4b2e15;
+  border-radius: 2px;
+  margin-top:-4em;
+  overflow: hidden; /* pour éviter les débordements internes */
+}
+
+  #glb-viewer {
+  width: 100%;
+  height: 100%; /* évite 100vh qui est parfois trop long */
+}
+ #page-interaction{
+    background-color: white;
+  }
+
+  
+    /* --- PAGE 2 : INTERACTION --- */
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      max-width: 1000px;
+      margin: 35px auto auto 1em;
+      gap: 49em;
+      padding: 0 20px;
+    }
+    
+
+     #glb-viewer {
+      width: 100%;
+      height: 400%;
+      background-color:white;
+     
+    }
+    
+    /* Images animées à gauche et droite */
+    .img-left, .img-right {
+      width: 10%;
+      height: 10%;
+      margin-top:-1em;
+      
+    }
+   .img-left{
+    margin-left:-3em;
+   }
+    /* Texte animé au centre */
+    #animated-text {
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1.6px;
+      font-weight: bold;
+      padding:1em;
+      margin-top:-2px;
+
+      color: #F77F00;
+      font-size: 1.3rem;
+      text-align: center;
+      word-wrap: break-word;
+      flex-grow: 1;
+    }
+
+    /* Zone de saisie */
+    textarea {
+      width: 100%;
+      max-width: 885px;
+      min-height: 170px;
+      margin: 0em auto 1em 1.5em;
+      font-size: 1.1rem;
+      padding: 10px;
+      border: 2px solid #4b2e15;
+      border-radius: 6px;
+      resize: vertical;
+      font-family: Arial, sans-serif;
+      color: #F77F00;
+      display: block;
+      box-sizing: border-box;
+    }
+
+    /* Bouton Envoyer */
+    #send-button {
+      display: block;
+      margin: 0.6em auto 50px 35.3em;
+      font-weight: bold;
+      padding: 10px 20px;
+      font-size: 1.3rem;
+      width: 8.5em;
+      background-color: #F77F00;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+  #typewriter {
+      font-size: 2em;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 3px;
+    
+      color: #F77F00;
+      margin-top: 3em;
+      
+    }
+
+  #page-aboya .container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* ← centre verticalement */
+  align-items: center;     /* ← centre horizontalement */
+  height: 100vh;           /* ← prend toute la hauteur de la page */
+  padding: 0;
+}
+
+#texte-parle {
+  font-size: 3rem;
+
+  letter-spacing: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  font-weight: bold;
+  margin-top:-1.2em;
+  border-right: 0.15em solid #F77F00;
+  box-sizing: border-box;
+  animation: glowPulse 1.5s infinite alternate;
+  
+}
+ .carousel-fade {
+      position: relative;
+      width: 90%;
+      height: 90%;
+      margin-top:-2em;
+      overflow: hidden;
+    }
+
+    .carousel-fade img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 70vh;
+      width: auto;
+      object-fit: contain;
+      object-position: center center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .carousel-fade img.active {
+      opacity: 1;
+      z-index: 1;
+    }
+
+
+  @keyframes glowPulse {
+    0% {
+      text-shadow: 0 0 10px #F77F00, 0 0 20px #F77F00;
+      transform: scale(1);
+    }
+    50% {
+      text-shadow: 0 0 20px #F77F00, 0 0 40px #F77F00;
+      transform: scale(1.05);
+    }
+    100% {
+      text-shadow: 0 0 10px #F77F00, 0 0 20px #F77F00;
+      transform: scale(1);
+    }
+  }
+#cadre_medias_masques {
+      width: 100%;
+      height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    #cadre_medias_danse {
+    display: none;              /* caché par défaut */
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    display: flex;              /* affichage flex pour centrer */
+    justify-content: center;
+    align-items: center;
+
+    background-color: #f8f5f0;  /* optionnel : fond neutre */
+  }
+
+  #cadre_medias_danse video {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 10px;
+    display: block;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2); /* optionnel pour style */
+  }
+
+    
+
+    
+
+   
+}
+
+
+  </style>
+    <!-- Import Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+
+</head>
+<body>
+<div class="cadre">
+  <div class="background-pattern"></div>
+
+  <!-- INTERFACE 1 : Au repos -->
+  <div id="page-repos" class="page active">
+    <div class="container">
+      <div id="glb-viewer"></div>
+      <h1 id="typewriter"></h1>
+    </div>
+  </div>
+
+  <!-- INTERFACE 2 : Interaction avec textarea et bouton envoyer -->
+  <div id="page-interaction" class="page">
+    <header>
+      <img src="static/img/aboya.png" class="img-left" alt="Image gauche" />
+      <img src="static/img/aboya.png" class="img-right" alt="Image droite" />
+    </header>
+    <div id="animated-text"></div>
+    <textarea placeholder="Posez Votre Question..............."></textarea>
+    <button id="send-button" aria-label="Envoyer la question">Envoyer</button>
+  </div>
+
+  <!-- INTERFACE 3 : Aboya parle normalement -->
+  <div id="page-aboya" class="page">
+    <div class="container">
+      <p id="texte-parle" class="aboya-text"></p>
+    </div>
+  </div>
+
+  <!-- INTERFACE 4 : CAROUSEL MEDIA -->
+  <div id="page-media" class="page">
+    <!-- MASQUES -->
+    <div id="cadre_medias_masques">
+      <div class="carousel-fade" id="carousel-masques">
+        <img src="/static/medias/masques/Masque_Blo.png" class="slide active" />
+        <img src="/static/medias/masques/Masque_Goli.png" />
+        <img src="/static/medias/masques/Masque_Goli_Glen.png" />
+        <img src="/static/medias/masques/Masque_kpan.png" />
+        <img src="/static/medias/masques/Masque_kple.png" />
+      </div>
+    </div>
+
+    <!-- DANSE (vidéo) -->
+    <div id="cadre_medias_danse" style="display:none;">
+      <video id="video-danse" controls autoplay muted playsinline>
+        <source src="/static/medias/danses/Danse_Goli.mp4" type="video/mp4" />
+        Votre navigateur ne supporte pas la vidéo.
+      </video>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- PAGE 1 : Texte animé "typewriter" ---
+  const typewriterEl = document.getElementById("typewriter");
+  const textRepos = "N'BOTUMBO INTERFACE";
+
+  async function typeWriterRepos() {
+    while (document.getElementById("page-repos").classList.contains("active")) {
+      typewriterEl.innerHTML = "";
+      for (let i = 0; i < textRepos.length; i++) {
+        typewriterEl.innerHTML += textRepos.charAt(i);
+        await new Promise(r => setTimeout(r, 150));
+      }
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+
+  // --- PAGE 2 : Texte animé dans header ---
+  const animatedTextEl = document.getElementById("animated-text");
+  const textInteraction = "Que souhaites-tu savoir sur moi ou sur la culture baoulé ?";
+
+  async function typeWriterInteraction() {
+    while (document.getElementById("page-interaction").classList.contains("active")) {
+      animatedTextEl.innerHTML = "";
+      for (let i = 0; i < textInteraction.length; i++) {
+        animatedTextEl.innerHTML += textInteraction.charAt(i);
+        await new Promise(r => setTimeout(r, 200));
+      }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+
+  // --- Auto resize de la textarea selon contenu ---
+  function enableTextareaAutoResize() {
+    const textarea = document.querySelector('#page-interaction textarea');
+    if (!textarea) return;
+    const adjustHeight = () => {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    };
+    textarea.addEventListener('input', adjustHeight);
+    adjustHeight();
+  }
+
+  // --- Gestion du passage de page 1 vers page 2 ---
+  function goToPageInteraction() {
+    document.getElementById("page-repos").classList.remove("active");
+    document.getElementById("page-interaction").classList.add("active");
+    typeWriterInteraction();
+    enableTextareaAutoResize();
+  }
+
+  // --- Événement click bouton envoyer ---
+  const sendButton = document.getElementById("send-button");
+  const textarea = document.querySelector('#page-interaction textarea');
+
+  function handleUserMessage() {
+  const message = textarea.value.trim();
+  if (!message) return;
+
+  console.log("[JS] ✉️ Envoi de la question au backend :", message);
+
+  fetch("http://localhost:6000/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message })
+  })
+  .then(response => {
+    if (response.ok) {
+      console.log("[JS] ✅ Question bien envoyée.");
+      // On laisse le backend gérer le passage à la page 3 après lecture vocale
+    } else {
+      console.error("[JS] ❌ Erreur envoi question.");
+    }
+  })
+  .catch(error => {
+    console.error("[JS] ❌ Erreur de connexion au backend :", error);
+  });
+}
+
+
+  sendButton.addEventListener("click", handleUserMessage);
+
+  // Envoi aussi avec la touche Entrée sans saut de ligne
+  textarea.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleUserMessage();
+    }
+  });
+
+  // --- VIDEO ---
+  const video = document.getElementById("video-danse");
+  video.loop = false;
+
+  video.addEventListener("play", () => {
+    stopCarousel();
+  });
+
+  video.addEventListener("ended", () => {
+    stopCarousel();
+    stopSectionSwitcher();
+    goToPageRepos();
+  });
+
+  // --- PAGE 4 : CAROUSEL MASQUES ---
+  const carouselContainer = document.getElementById("carousel-masques");
+  const slides = carouselContainer ? carouselContainer.querySelectorAll("img") : [];
+  let currentSlide = 0;
+  let carouselInterval;
+
+  function nextSlide() {
+    slides[currentSlide].classList.remove("active");
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add("active");
+  }
+
+  function startCarousel() {
+    if (carouselInterval) clearInterval(carouselInterval);
+    carouselInterval = setInterval(nextSlide, 3000);
+  }
+
+  function stopCarousel() {
+    if (carouselInterval) clearInterval(carouselInterval);
+  }
+
+  // --- SWITCHER ENTRE LES DEUX SECTIONS MEDIA ---
+  const sections = [
+    document.getElementById("cadre_medias_masques"),
+    document.getElementById("cadre_medias_danse")
+  ];
+  let currentIndex = 0;
+  let switcherInterval;
+
+  function switchSection() {
+    sections[currentIndex].style.display = "none";
+    currentIndex = (currentIndex + 1) % sections.length;
+    sections[currentIndex].style.display = "flex";
+
+    if (currentIndex === 0) {
+      startCarousel();
+
+      // Pause la vidéo si elle est lancée
+      if (!video.paused && !video.ended) {
+        video.pause();
+      }
+      video.currentTime = 0;
+    } else {
+      stopCarousel();
+
+      // Lance la vidéo, sans erreur si impossible
+      video.play().catch((error) => {
+        console.warn("Erreur lors du lancement de la vidéo :", error);
+      });
+    }
+  }
+
+  function startSectionSwitcher() {
+    switcherInterval = setInterval(switchSection, 60000);
+  }
+
+  function stopSectionSwitcher() {
+    if (switcherInterval) clearInterval(switcherInterval);
+  }
+
+  // --- Retour à page repos (page 1) ---
+  function goToPageRepos() {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove("active"));
+    document.getElementById("page-repos").classList.add("active");
+    typeWriterRepos();
+  }
+
+  // --- THREE.JS GLB Viewer ---
+  let camera, renderer, container, scene, controls;
+
+  function initGLBViewer() {
+    container = document.getElementById('glb-viewer');
+    scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(0, 1, 2.5);
+
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setClearColor(0xffffff, 1);
+    container.appendChild(renderer.domElement);
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 5.0;
+
+    const loader = new THREE.GLTFLoader();
+
+    loader.load('/static/models/Statuette3D.glb', function(gltf) {
+      gltf.scene.traverse((child) => {
+        if (child.isMesh) {
+          child.material = new THREE.MeshBasicMaterial({ color: 0xF77F00 });
+          child.geometry.computeBoundingBox();
+          const box = child.geometry.boundingBox;
+          const center = new THREE.Vector3();
+          box.getCenter(center);
+          child.position.sub(center);
+          child.position.y -= 0.2;
+        }
+      });
+      scene.add(gltf.scene);
+      animate();
+    }, undefined, function(error) {
+      console.error('Erreur de chargement GLB :', error);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+  }
+
+  // --- INITIALISATION AU CHARGEMENT ---
+  window.onload = () => {
+    typeWriterRepos();
+    initGLBViewer();
+  };
+
+  // --- GESTION DU RESIZE ---
+  window.addEventListener('resize', () => {
+    if (!camera || !renderer || !container) return;
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+  // --- VERIFICATION DU CHANGEMENT DE PAGE CÔTÉ BACKEND ---
+  let currentPageState = "repos"; // Valeur initiale
+
+  async function verifierPageState() {
+    try {
+      const response = await fetch('/static/page_state.txt', { cache: 'no-store' });
+      const nouvellePage = await response.text();
+      const page = nouvellePage.trim();
+
+      if (page !== currentPageState) {
+        currentPageState = page;
+
+        if (page === "interaction") {
+          goToPageInteraction();
+          console.log("[JS] 🌀 Passage détecté : page 1 → page 2");
+        } else {
+          // Ignorer les autres états (page 3 et 4 ne sont pas gérés ici)
+          console.log("[JS] 🌀 Changement détecté mais ignoré :", page);
+        }
+      }
+    } catch (err) {
+      console.error("❌ Erreur lecture page_state.txt :", err);
+    }
+  }
+
+  // Vérification toutes les 2 secondes
+  setInterval(verifierPageState, 2000);
+</script>
+
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker enregistré !'))
+        .catch(error => console.error('Erreur enregistrement SW:', error));
+    }
+  </script>
+
+
+</body>
+</html>

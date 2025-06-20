@@ -832,7 +832,7 @@ body {
 
   console.log("[JS] ✉️ Envoi de la question au backend :", message);
 
-  fetch("http://localhost:6000/ask", {
+  fetch("http://localhost:5005/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message })

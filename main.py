@@ -51,9 +51,9 @@ def ask_question():
     threading.Thread(target=traiter_question_rasa_et_vocaliser, args=(question,)).start()
     return jsonify({"status": "ok"})
 
-def traiter_question_rasa_et_vocaliser(question):
+def traiter_question_rasa_et_vocaliser(question, mode="rhvoice"):  # ou "gtts"
     try:
-        # Appel à Rasa local
+        print(f"[RASA] ➡️ Envoi de la question à Rasa : {question}")
         response = subprocess.run(
             ["curl", "-X", "POST", "http://localhost:5005/webhooks/rest/webhook",
              "-H", "Content-Type: application/json",
@@ -67,22 +67,31 @@ def traiter_question_rasa_et_vocaliser(question):
 
         messages = json.loads(response.stdout)
         if not messages or "text" not in messages[0]:
-            print("[RASA] ⚠️ Réponse vide ou mal formatée.")
+            print("[RASA] ⚠️ Réponse vide ou mal formatée :", messages)
             return
 
         texte_reponse = messages[0]["text"]
         print(f"[RASA] 🧠 Réponse : {texte_reponse}")
 
-        # Lecture vocale avec Coqui TTS
-        output_path = "response.wav"
-        tts.tts_to_file(text=texte_reponse, file_path=output_path)
-        os.system(f'aplay {output_path}')
+        # Choix du moteur vocal
+        if mode == "gtts":
+            from gtts import gTTS
+            tts = gTTS(text=texte_reponse, lang='fr')
+            tts.save("response.mp3")
+            os.system("mpg123 response.mp3")
 
-        # Passage à la page 3
+        elif mode == "rhvoice":
+            subprocess.run(['RHVoice-test', '-p', 'anna'], input=texte_reponse.encode('utf-8'))
+
+        else:
+            print("[TTS] ⚠️ Moteur vocal non reconnu :", mode)
+            return
+
         changer_page("aboya")
 
     except Exception as e:
         print(f"[ERROR] ❌ Exception dans le traitement Rasa : {e}")
+
 
 # --- Lancement de Flask + thread capteur ---
 if __name__ == "__main__":
